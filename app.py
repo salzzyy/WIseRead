@@ -28,7 +28,14 @@ def index():
 @app.route("/recommended_books", methods=["POST"])
 def recommend():
     user_input = request.form.get("user_input")
-    index = np.where(pt.index == user_input)[0][0]
+    
+    # Check if user_input exists in pt.index
+    index_array = np.where(pt.index == user_input)[0]
+    if len(index_array) == 0:
+        return render_template("recommend.html", error="Book not found. Please enter a valid book title.")
+
+    index = index_array[0]  # Safe to access
+
     similar_items = sorted(
         list(enumerate(similarity_score[index])), key=lambda x: x[1], reverse=True
     )[1:9]
@@ -44,7 +51,6 @@ def recommend():
         data.append(item)
 
     return render_template("recommend.html", data=data)
-
 
 @app.route("/recommend")
 def recommend_ui():
